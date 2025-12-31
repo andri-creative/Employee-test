@@ -32,7 +32,7 @@ export function EmployeeTableHeader({ totalCount }: EmployeeTableHeaderProps) {
           size={{ initial: "1", sm: "2" }}
           style={{ color: "var(--gray-a11)", paddingLeft: "44px" }}
         >
-          Manage dan filter data karyawan
+          Manage and filter employee data
         </Text>
       </Flex>
 

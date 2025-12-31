@@ -1,4 +1,4 @@
-import { Card, Flex, Text, Badge, Grid } from "@radix-ui/themes";
+import { Card, Flex, Text, Badge } from "@radix-ui/themes";
 import {
   TrendingUp,
   TrendingDown,
@@ -29,7 +29,11 @@ export default function KpiCard({
   color = "blue",
 }: KpiCardProps) {
   const getIcon = () => {
-    const iconProps = { size: 20, strokeWidth: 2 };
+    const iconProps = {
+      className: "w-4 h-4 sm:w-5 sm:h-5",
+      strokeWidth: 2,
+    };
+
     switch (icon) {
       case "users":
         return <Users {...iconProps} />;
@@ -54,22 +58,32 @@ export default function KpiCard({
 
   return (
     <Card
-      size="3"
-      className="hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+      size="2"
+      className="
+        transition-transform
+        sm:hover:scale-[1.02]
+        cursor-pointer
+      "
       style={{
         background: "var(--color-panel-solid)",
         border: "1px solid var(--gray-a5)",
       }}
     >
       <Flex direction="column" gap="3">
-        <Flex justify="between" align="start">
-          <Flex direction="column" gap="1" style={{ flex: 1, minWidth: 0 }}>
-            <Text size="2" style={{ color: "var(--gray-a11)" }} weight="medium">
+        <Flex justify="between" align="start" gap="3">
+          {/* TEXT */}
+          <Flex direction="column" gap="1" className="min-w-0">
+            <Text
+              className="text-xs sm:text-sm"
+              style={{ color: "var(--gray-a11)" }}
+              weight="medium"
+            >
               {title}
             </Text>
+
             <Text
-              size="6"
               weight="bold"
+              className="text-lg sm:text-2xl"
               style={{
                 letterSpacing: "-0.02em",
                 color: `var(--${color}-11)`,
@@ -80,17 +94,17 @@ export default function KpiCard({
             </Text>
           </Flex>
 
+          {/* ICON */}
           {icon && (
             <Flex
               align="center"
               justify="center"
+              className="w-9 h-9 sm:w-11 sm:h-11"
               style={{
-                width: "44px",
-                height: "44px",
-                minWidth: "44px",
                 borderRadius: "var(--radius-3)",
                 background: `var(--${color}-a3)`,
                 color: `var(--${color}-11)`,
+                flexShrink: 0,
               }}
             >
               {getIcon()}
@@ -98,23 +112,27 @@ export default function KpiCard({
           )}
         </Flex>
 
+        {/* TREND + SUBTITLE */}
         {(trend || subtitle) && (
           <Flex gap="2" align="center" wrap="wrap">
             {trend && trendValue && (
               <Badge color={getTrendColor()} radius="full" size="1">
                 <Flex gap="1" align="center">
                   {trend === "up" ? (
-                    <TrendingUp size={12} />
+                    <TrendingUp className="w-3 h-3" />
                   ) : (
-                    <TrendingDown size={12} />
+                    <TrendingDown className="w-3 h-3" />
                   )}
-                  {trendValue}
+                  <span className="text-xs">{trendValue}</span>
                 </Flex>
               </Badge>
             )}
 
             {subtitle && (
-              <Text size="1" style={{ color: "var(--gray-a10)" }}>
+              <Text
+                className="text-[11px] sm:text-xs"
+                style={{ color: "var(--gray-a10)" }}
+              >
                 {subtitle}
               </Text>
             )}

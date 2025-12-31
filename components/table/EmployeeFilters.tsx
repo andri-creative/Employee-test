@@ -98,11 +98,11 @@ export function EmployeeFilters({
           <Select.Trigger placeholder="Filter posisi" style={{ width: "100%" }}>
             <Flex align="center" gap="1">
               <Filter size={14} />
-              {position === "all" ? "Semua Posisi" : position}
+              {position === "all" ? "All Positions" : position}
             </Flex>
           </Select.Trigger>
           <Select.Content>
-            <Select.Item value="all">Semua Posisi</Select.Item>
+            <Select.Item value="all">All Positions</Select.Item>
             {positions.map((pos) => (
               <Select.Item key={pos} value={pos}>
                 {pos}

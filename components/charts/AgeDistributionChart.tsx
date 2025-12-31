@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, Flex, Text, Badge } from "@radix-ui/themes";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -43,16 +44,27 @@ export default function AgeDistributionChart({
     return colors[index % colors.length];
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
-    <Card size="3">
+    <Card size="2">
       <Flex direction="column" gap="4">
+        {/* HEADER */}
         <Flex justify="between" align="start" wrap="wrap" gap="3">
           <Flex direction="column" gap="1">
             <Flex align="center" gap="2">
               <div
+                className="w-8 h-8 sm:w-9 sm:h-9"
                 style={{
-                  width: "36px",
-                  height: "36px",
                   borderRadius: "var(--radius-2)",
                   background: "var(--blue-a3)",
                   display: "flex",
@@ -61,72 +73,78 @@ export default function AgeDistributionChart({
                   color: "var(--blue-11)",
                 }}
               >
-                <Users size={18} />
+                <Users className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               </div>
-              <Text size={{ initial: "3", sm: "4" }} weight="bold">
-                Distribusi Usia Karyawan
+
+              <Text className="text-sm sm:text-base" weight="bold">
+                Employee Age Distribution
               </Text>
             </Flex>
+
             <Text
-              size={{ initial: "1", sm: "2" }}
-              style={{ color: "var(--gray-a11)", paddingLeft: "44px" }}
+              className="text-[11px] sm:text-xs"
+              style={{ color: "var(--gray-a11)", paddingLeft: "40px" }}
             >
-              Komposisi berdasarkan rentang usia
+              Composition based on age ranges
             </Text>
           </Flex>
+
           <Flex gap="2" wrap="wrap">
-            <Badge color="blue" size="2" radius="full">
+            <Badge color="blue" size="1" radius="full">
               <Flex align="center" gap="1">
                 <Users size={12} />
-                {totalEmployees} Total
+                {totalEmployees}
               </Flex>
             </Badge>
-            <Badge color="purple" size="2" radius="full" variant="soft">
-              {enrichedData.length} Rentang
+
+            <Badge color="purple" size="1" radius="full" variant="soft">
+              {enrichedData.length} Ranges
             </Badge>
           </Flex>
         </Flex>
 
-        <ResponsiveContainer width="100%" height={320}>
+        {/* CHART */}
+        <ResponsiveContainer width="100%" height={isMobile ? 260 : 360}>
           <BarChart
             data={enrichedData}
-            margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
+            margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-a4)" />
+
             <XAxis
               dataKey="ageRange"
-              tick={{ fill: "var(--gray-a11)", fontSize: 12 }}
+              tick={{ fill: "var(--gray-a11)", fontSize: 10 }}
               axisLine={{ stroke: "var(--gray-a6)" }}
-              tickLine={{ stroke: "var(--gray-a6)" }}
+              tickLine={false}
             />
+
             <YAxis
-              tick={{ fill: "var(--gray-a11)", fontSize: 12 }}
-              axisLine={{ stroke: "var(--gray-a6)" }}
-              tickLine={{ stroke: "var(--gray-a6)" }}
-              label={{
-                value: "Jumlah Karyawan",
-                angle: -90,
-                position: "insideLeft",
-                style: { fill: "var(--gray-a11)", fontSize: 11 },
-              }}
+              tick={{ fill: "var(--gray-a11)", fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+              hide={window.innerWidth < 640}
             />
+
             <Tooltip
               content={<AgeTooltip />}
               cursor={{ fill: "var(--blue-a2)" }}
             />
-            <Bar dataKey="total" radius={[8, 8, 0, 0]} maxBarSize={80}>
-              {enrichedData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={getColor(index)} />
+
+            <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={48}>
+              {enrichedData.map((_, index) => (
+                <Cell key={index} fill={getColor(index)} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
 
-        <Flex gap="2" wrap="wrap" style={{ paddingTop: "0.5rem" }}>
-          <Text size="1" style={{ color: "var(--gray-a10)" }}>
-            💡 Mayoritas karyawan berada di rentang usia produktif
-          </Text>
-        </Flex>
+        {/* FOOTNOTE */}
+        <Text
+          className="text-[11px] sm:text-xs"
+          style={{ color: "var(--gray-a10)" }}
+        >
+          💡 Most employees are within the productive age range
+        </Text>
       </Flex>
     </Card>
   );

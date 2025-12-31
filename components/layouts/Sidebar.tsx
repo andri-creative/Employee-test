@@ -2,8 +2,8 @@
 import React, { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Box, Flex, Button, Badge } from "@radix-ui/themes";
-import { Home, LogOut, LucideIcon, Upload } from "lucide-react";
+import { Box, Flex, Button, Badge, Text } from "@radix-ui/themes";
+import { Home, Upload, LucideIcon } from "lucide-react";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -15,7 +15,7 @@ interface MenuItem {
   icon: LucideIcon;
   label: string;
   path: string;
-  badge: string | null;
+  badge?: string | null;
 }
 
 interface MenuContentProps {
@@ -31,73 +31,92 @@ export function Sidebar({
   const pathname = usePathname();
 
   const menuItems: MenuItem[] = [
-    { icon: Home, label: "Dashboard", path: "/", badge: null },
-    {
-      icon: Upload,
-      label: "Upload File",
-      path: "/upload-employee",
-      badge: null,
-    },
+    { icon: Home, label: "Dashboard", path: "/" },
+    { icon: Upload, label: "Upload Employee", path: "/upload-employee" },
   ];
 
   const MenuContent = ({
     isCollapsed = false,
     onItemClick = null,
-  }: MenuContentProps) => {
-    const handleItemClick = () => {
-      if (onItemClick) onItemClick();
-    };
+  }: MenuContentProps) => (
+    <Flex direction="column" justify="between" height="100%" py="3">
+      <Flex direction="column" gap="1" px="3">
+        {" "}
+        {/* Tambahkan padding horizontal di sini */}
+        {menuItems.map((item, index) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.path;
 
-    return (
-      <Flex
-        direction="column"
-        justify="between"
-        style={{ height: "100%", padding: "1rem 0" }}
-      >
-        <Flex direction="column" gap="1">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.path;
+          return (
+            <Box
+              key={index}
+              style={{
+                position: "relative",
+                marginBottom: "0.25rem", // Spasi antar item
+              }}
+            >
+              {/* Active Indicator - Letakkan di Box luar */}
+              {isActive && (
+                <Box
+                  style={{
+                    position: "absolute",
+                    left: "-12px", // Tepat di tepi sidebar
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    height: "24px",
+                    width: "4px",
+                    borderRadius: "0 4px 4px 0",
+                    backgroundColor: "var(--accent-9)",
+                    zIndex: 1,
+                  }}
+                />
+              )}
 
-            return (
               <Link
-                key={index}
                 href={item.path}
-                style={{ textDecoration: "none" }}
-                onClick={handleItemClick}
+                onClick={onItemClick ?? undefined}
+                style={{
+                  textDecoration: "none",
+                  display: "block",
+                }}
               >
                 <Button
-                  variant={isActive ? "soft" : "ghost"}
+                  variant="ghost"
                   size="3"
                   style={{
-                    justifyContent: isCollapsed ? "center" : "flex-start",
-                    padding: "0.875rem 1rem",
-                    margin: "0 0.5rem",
+                    width: "100%",
+                    padding: "0.75rem 1rem", // Kurangi padding sedikit
                     borderRadius: "8px",
                     cursor: "pointer",
-                    width: "100%",
-                    backgroundColor: isActive ? "var(--accent-3)" : undefined,
+                    justifyContent: isCollapsed ? "center" : "flex-start",
+                    backgroundColor: isActive
+                      ? "var(--accent-a3)"
+                      : "transparent",
+                    // Hapus semua margin dari sini
                   }}
                 >
-                  <Flex align="center" gap="3" style={{ width: "100%" }}>
+                  <Flex align="center" gap="3" width="100%">
                     <Icon
                       size={20}
                       style={{
-                        flexShrink: 0,
-                        color: isActive ? "var(--accent-11)" : undefined,
+                        color: isActive ? "var(--accent-11)" : "var(--gray-11)",
                       }}
                     />
+
                     {!isCollapsed && (
                       <>
-                        <div
+                        <Text
+                          size="2"
+                          weight={isActive ? "bold" : "regular"}
                           style={{
-                            flex: 1,
-                            whiteSpace: "nowrap",
-                            color: isActive ? "var(--accent-11)" : undefined,
+                            color: isActive
+                              ? "var(--accent-11)"
+                              : "var(--gray-12)",
                           }}
                         >
                           {item.label}
-                        </div>
+                        </Text>
+
                         {item.badge && (
                           <Badge color="red" radius="full" size="1">
                             {item.badge}
@@ -108,12 +127,12 @@ export function Sidebar({
                   </Flex>
                 </Button>
               </Link>
-            );
-          })}
-        </Flex>
+            </Box>
+          );
+        })}
       </Flex>
-    );
-  };
+    </Flex>
+  );
 
   return (
     <>
@@ -122,15 +141,15 @@ export function Sidebar({
         className="desktop-only"
         style={{
           position: "fixed",
-          left: 0,
           top: "64px",
+          left: 0,
           bottom: 0,
           width: isSidebarOpen ? "260px" : "80px",
           backgroundColor: "var(--color-background)",
           borderRight: "1px solid var(--gray-5)",
-          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          overflow: "hidden",
+          transition: "width 0.25s ease",
           zIndex: 40,
+          overflow: "hidden", // Pastikan konten tidak meluber
         }}
       >
         <MenuContent isCollapsed={!isSidebarOpen} />
@@ -142,28 +161,30 @@ export function Sidebar({
           {/* Overlay */}
           <Box
             className="mobile-only"
+            onClick={() => setIsMobileMenuOpen(false)}
             style={{
               position: "fixed",
               inset: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.6)",
-              zIndex: 45,
               top: "64px",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 45,
             }}
-            onClick={() => setIsMobileMenuOpen(false)}
           />
-          {/* Sidebar */}
+
+          {/* Drawer */}
           <Box
             className="mobile-only"
             style={{
               position: "fixed",
-              left: 0,
               top: "64px",
+              left: 0,
               bottom: 0,
               width: "280px",
               backgroundColor: "var(--color-background)",
+              boxShadow: "8px 0 24px rgba(0,0,0,0.2)",
               zIndex: 50,
-              boxShadow: "4px 0 12px rgba(0, 0, 0, 0.15)",
-              animation: "slideIn 0.3s ease-out",
+              animation: "slideIn 0.25s ease-out",
+              overflow: "hidden", // Pastikan konten tidak meluber
             }}
           >
             <MenuContent onItemClick={() => setIsMobileMenuOpen(false)} />

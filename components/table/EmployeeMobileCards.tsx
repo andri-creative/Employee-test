@@ -29,7 +29,7 @@ export function EmployeeMobileCards({
         <Card>
           <Flex justify="center" py="5">
             <Text size="2" color="gray">
-              Tidak ada data yang ditemukan
+              No data found
             </Text>
           </Flex>
         </Card>
@@ -47,13 +47,13 @@ export function EmployeeMobileCards({
                   </Badge>
                 </Flex>
                 <Badge color="gray" variant="soft" radius="full" size="1">
-                  {emp.age} tahun
+                  {emp.age} years
                 </Badge>
               </Flex>
 
               <Flex justify="between" align="center">
                 <Text size="1" style={{ color: "var(--gray-a11)" }}>
-                  Gaji
+                  Salary
                 </Text>
                 <Badge
                   color={getValidColor(getSalaryColor(emp.salary))}

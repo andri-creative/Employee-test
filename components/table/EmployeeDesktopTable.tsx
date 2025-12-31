@@ -53,7 +53,7 @@ export function EmployeeDesktopTable({
                 <Table.Cell colSpan={4}>
                   <Flex justify="center" py="5">
                     <Text size="2" color="gray">
-                      Tidak ada data yang ditemukan
+                      No data found
                     </Text>
                   </Flex>
                 </Table.Cell>
@@ -66,7 +66,7 @@ export function EmployeeDesktopTable({
                   </Table.Cell>
                   <Table.Cell>
                     <Badge color="gray" variant="soft" radius="full">
-                      {emp.age} tahun
+                      {emp.age} years
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>

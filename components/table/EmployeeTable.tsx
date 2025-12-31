@@ -30,7 +30,7 @@ interface EmployeeTableProps {
   searchValue?: string;
 }
 
-export function EmployeeTable({
+export default function EmployeeTable({
   employees,
   positions,
   selectedPosition,
@@ -96,5 +96,3 @@ export function EmployeeTable({
     </Card>
   );
 }
-
-export default EmployeeTable;

@@ -54,7 +54,7 @@ export function EmployeePagination({
       }}
     >
       <Text size="2" style={{ color: "var(--gray-a11)" }}>
-        Halaman {page} dari {totalPages}
+        Page {page} of {totalPages}
         <Text
           as="span"
           style={{ color: "var(--gray-a9)", marginLeft: "0.5rem" }}

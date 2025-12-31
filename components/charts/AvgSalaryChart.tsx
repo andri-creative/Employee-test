@@ -24,18 +24,14 @@ interface AvgSalaryChartProps {
 }
 
 export default function AvgSalaryChart({ data }: AvgSalaryChartProps) {
-  // Sort data dari tertinggi ke terendah
   const sortedData = [...data].sort((a, b) => b.avgSalary - a.avgSalary);
 
-  // Tandai highest dan lowest
   const enrichedData = sortedData.map((item, index) => ({
     ...item,
     isHighest: index === 0,
     isLowest: index === sortedData.length - 1,
-    displaySalary: `Rp ${(item.avgSalary / 1000000).toFixed(1)}jt`,
   }));
 
-  // Warna berdasarkan ranking
   const getColor = (isHighest: boolean, isLowest: boolean) => {
     if (isHighest) return "var(--green-9)";
     if (isLowest) return "var(--blue-9)";
@@ -46,52 +42,18 @@ export default function AvgSalaryChart({ data }: AvgSalaryChartProps) {
     sortedData.reduce((sum, item) => sum + item.avgSalary, 0) /
     sortedData.length;
 
-  // 🎯 FITUR BAGUS 1: Hitung tinggi secara dinamis TAPI dengan batasan
-  const calculateChartHeight = () => {
-    const baseHeight = 320; // Sama dengan chart sebelah
-    const dynamicHeight = sortedData.length * 50; // 50px per bar
-
-    // Berikan batasan maksimal agar tidak terlalu tinggi
-    const maxHeight = 450; // Max 450px
-
-    if (dynamicHeight > maxHeight) {
-      // Jika terlalu banyak data, gunakan scroll internal
-      return maxHeight;
-    }
-
-    // Jika sedikit data, tinggi minimal sama dengan chart sebelah
-    return Math.max(baseHeight, dynamicHeight);
-  };
-
-  // 🎯 FITUR BAGUS 2: Hitung width Y-axis berdasarkan panjang teks
-  const calculateYAxisWidth = () => {
-    const maxLength = Math.max(
-      ...sortedData.map((item) => item.position.length)
-    );
-    // Hitung width: minimal 140px, maksimal 200px, sesuaikan dengan panjang teks
-    return Math.min(Math.max(maxLength * 8, 140), 200);
-  };
-
-  // 🎯 FITUR BAGUS 3: Adjust font size jika ada banyak data
-  const getFontSize = () => {
-    if (sortedData.length > 7) return 10; // Font lebih kecil untuk banyak data
-    return 11; // Font normal
-  };
-
-  const chartHeight = calculateChartHeight();
-  const yAxisWidth = calculateYAxisWidth();
-  const fontSize = getFontSize();
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
   return (
-    <Card size="3" style={{ height: "100%" }}>
-      <Flex direction="column" gap="4" style={{ height: "100%" }}>
+    <Card size="2">
+      <Flex direction="column" gap="4">
+        {/* HEADER */}
         <Flex justify="between" align="start" wrap="wrap" gap="3">
           <Flex direction="column" gap="1">
             <Flex align="center" gap="2">
               <div
+                className="w-8 h-8 sm:w-9 sm:h-9"
                 style={{
-                  width: "36px",
-                  height: "36px",
                   borderRadius: "var(--radius-2)",
                   background: "var(--green-a3)",
                   display: "flex",
@@ -100,133 +62,116 @@ export default function AvgSalaryChart({ data }: AvgSalaryChartProps) {
                   color: "var(--green-11)",
                 }}
               >
-                <DollarSign size={18} />
+                <DollarSign className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               </div>
-              <Text size={{ initial: "3", sm: "4" }} weight="bold">
-                Rata-rata Gaji per Posisi
+
+              <Text className="text-sm sm:text-base" weight="bold">
+                Average Salary by Position
               </Text>
             </Flex>
+
             <Text
-              size={{ initial: "1", sm: "2" }}
-              style={{ color: "var(--gray-a11)", paddingLeft: "44px" }}
+              className="text-[11px] sm:text-xs"
+              style={{ color: "var(--gray-a11)", paddingLeft: "40px" }}
             >
-              Ranking berdasarkan kompensasi
+              Ranking based on compensation
             </Text>
           </Flex>
+
           <Flex gap="2" wrap="wrap">
-            <Badge color="green" size="2" radius="full">
+            <Badge color="green" size="1" radius="full">
               <Flex align="center" gap="1">
                 <TrendingUp size={12} />
-                Rp {(avgOfAvg / 1000000).toFixed(1)}jt Avg
+                Rp {(avgOfAvg / 1_000_000).toFixed(1)}m
               </Flex>
             </Badge>
-            <Badge color="purple" size="2" radius="full" variant="soft">
-              {sortedData.length} Posisi
+
+            <Badge color="purple" size="1" radius="full" variant="soft">
+              {sortedData.length} Positions
             </Badge>
           </Flex>
         </Flex>
 
-        {/* 🎯 ResponsiveContainer dengan tinggi yang dihitung secara cerdas */}
-        <div style={{ flex: 1, minHeight: "320px" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={enrichedData}
-              layout="vertical"
-              margin={{
-                top: sortedData.length > 7 ? 10 : 5,
-                right: 30,
-                left: 10,
-                bottom: sortedData.length > 7 ? 20 : 5,
+        {/* CHART */}
+        <ResponsiveContainer width="100%" height={isMobile ? 260 : 360}>
+          <BarChart
+            data={enrichedData}
+            layout="vertical"
+            margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-a4)" />
+
+            <XAxis
+              type="number"
+              tick={{ fill: "var(--gray-a11)", fontSize: isMobile ? 10 : 11 }}
+              tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}m`}
+              axisLine={false}
+              tickLine={false}
+            />
+
+            <YAxis
+              dataKey="position"
+              type="category"
+              width={isMobile ? 90 : 140}
+              tick={{
+                fill: "var(--gray-a11)",
+                fontSize: isMobile ? 10 : 11,
               }}
+              tickFormatter={(v: string) =>
+                isMobile && v.length > 10 ? v.slice(0, 10) + "…" : v
+              }
+              axisLine={false}
+              tickLine={false}
+            />
+
+            <Tooltip
+              content={<SalaryTooltip />}
+              cursor={{ fill: "var(--green-a2)" }}
+            />
+
+            <Bar
+              dataKey="avgSalary"
+              radius={[0, 6, 6, 0]}
+              maxBarSize={isMobile ? 26 : 34}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-a4)" />
-              <XAxis
-                type="number"
-                tick={{ fill: "var(--gray-a11)", fontSize: 11 }}
-                axisLine={{ stroke: "var(--gray-a6)" }}
-                tickLine={{ stroke: "var(--gray-a6)" }}
-                tickFormatter={(value) => `${(value / 1000000).toFixed(0)}jt`}
-              />
-              <YAxis
-                dataKey="position"
-                type="category"
-                width={100}
-                angle={0}
-                textAnchor="end"
-                tick={{
-                  fill: "var(--gray-a11)",
-                  fontSize: fontSize,
-                }}
-                tickFormatter={(value: string) =>
-                  value.length > 12 ? value.slice(0, 12) + "…" : value
-                }
-                axisLine={{ stroke: "var(--gray-a6)" }}
-                tickLine={{ stroke: "var(--gray-a6)" }}
-              />
+              {enrichedData.map((entry, index) => (
+                <Cell
+                  key={index}
+                  fill={getColor(entry.isHighest, entry.isLowest)}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
 
-              <Tooltip
-                content={<SalaryTooltip />}
-                cursor={{ fill: "var(--green-a2)" }}
-              />
-              <Bar dataKey="avgSalary" radius={[0, 8, 8, 0]} maxBarSize={35}>
-                {enrichedData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={getColor(entry.isHighest, entry.isLowest)}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <Flex direction="column" gap="2" style={{ paddingTop: "0.5rem" }}>
-          <Flex gap="3" wrap="wrap">
-            <Flex align="center" gap="2">
+        {/* LEGEND */}
+        <Flex gap="3" wrap="wrap">
+          {[
+            ["var(--green-9)", "Highest"],
+            ["var(--purple-9)", "Mid-range"],
+            ["var(--blue-9)", "Lowest"],
+          ].map(([color, label]) => (
+            <Flex key={label} align="center" gap="2">
               <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "2px",
-                  background: "var(--green-9)",
-                }}
+                className="w-3 h-3 rounded-sm"
+                style={{ background: color }}
               />
-              <Text size="1" style={{ color: "var(--gray-a11)" }}>
-                Tertinggi
+              <Text
+                className="text-[11px] sm:text-xs"
+                style={{ color: "var(--gray-a11)" }}
+              >
+                {label}
               </Text>
             </Flex>
-            <Flex align="center" gap="2">
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "2px",
-                  background: "var(--purple-9)",
-                }}
-              />
-              <Text size="1" style={{ color: "var(--gray-a11)" }}>
-                Menengah
-              </Text>
-            </Flex>
-            <Flex align="center" gap="2">
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "2px",
-                  background: "var(--blue-9)",
-                }}
-              />
-              <Text size="1" style={{ color: "var(--gray-a11)" }}>
-                Terendah
-              </Text>
-            </Flex>
-          </Flex>
-          <Text size="1" style={{ color: "var(--gray-a10)" }}>
-            💡 Chart diurutkan dari gaji tertinggi ke terendah untuk memudahkan
-            analisa kompensasi
-          </Text>
+          ))}
         </Flex>
+
+        <Text
+          className="text-[11px] sm:text-xs"
+          style={{ color: "var(--gray-a10)" }}
+        >
+          💡 Sorted from highest to lowest salary for easier analysis
+        </Text>
       </Flex>
     </Card>
   );
