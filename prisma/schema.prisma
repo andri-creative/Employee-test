@@ -14,4 +14,8 @@ model Employee {
   position  String
   salary    Int
   createdAt DateTime @default(now())
+
+  @@index([position])
+  @@index([name(sort: Asc)])
+  @@index([position, name])
 }

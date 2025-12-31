@@ -8,7 +8,6 @@ import { getAgeDistribution } from "@/lib/age";
 import { getEmployees } from "@/lib/employees";
 import { getPositions } from "@/lib/positions";
 import EmployeeTable from "@/components/table/EmployeeTable";
-import { Suspense } from "react";
 
 type SearchParams = {
   page?: string;

@@ -16,10 +16,12 @@ export async function getEmployees({
     search || "none"
   }`;
 
-  const cached = getCache(cacheKey);
-  if (cached) {
-    console.log("✅ Employees loaded from cache");
-    return cached;
+  if (!search) {
+    const cached = getCache(cacheKey);
+    if (cached) {
+      console.log("✅ Employees loaded from cache");
+      return cached;
+    }
   }
 
   const where: any = {};
@@ -42,6 +44,13 @@ export async function getEmployees({
       skip: (page - 1) * pageSize,
       take: pageSize,
       orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        position: true,
+        age: true,
+        salary: true,
+      },
     }),
   ]);
 
