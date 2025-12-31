@@ -13,6 +13,7 @@
     "@prisma/client": "^7.2.0",
     "@radix-ui/themes": "^3.2.1",
     "dotenv": "^17.2.3",
+    "lru-cache": "^11.2.4",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "papaparse": "^5.5.3",

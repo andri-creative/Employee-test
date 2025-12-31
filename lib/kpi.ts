@@ -1,6 +1,16 @@
 import prisma from "./prisma";
+import { getCache, setCache } from "./cache";
 
 export async function getEmployeeKpis() {
+  const cacheKey = "employee_kpis";
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    console.log("✅ KPIs loaded from cache");
+    return cached;
+  }
+
+  // Query asli kamu yang sudah optimal
   const [totalEmployee, avgAge, avgSalary, highestSalary, mostCommonPosition] =
     await Promise.all([
       prisma.employee.count(),
@@ -29,11 +39,16 @@ export async function getEmployeeKpis() {
       }),
     ]);
 
-  return {
+  const kpis = {
     totalEmployee,
     averageAge: Math.round(avgAge._avg.age ?? 0),
     averageSalary: Math.round(avgSalary._avg.salary ?? 0),
     highestSalary: highestSalary._max.salary ?? 0,
     mostCommonPosition: mostCommonPosition[0]?.position ?? "-",
   };
+
+  setCache(cacheKey, kpis);
+  console.log("💾 KPIs saved to cache");
+
+  return kpis;
 }

@@ -1,6 +1,15 @@
 import prisma from "./prisma";
+import { getCache, setCache } from "./cache";
 
 export async function getAgeDistribution() {
+  const cacheKey = "age_distribution";
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    console.log("✅ Age distribution loaded from cache");
+    return cached;
+  }
+
   const ranges = [
     { label: "20-29", min: 20, max: 29 },
     { label: "30-39", min: 30, max: 39 },
@@ -25,6 +34,9 @@ export async function getAgeDistribution() {
       };
     })
   );
+
+  setCache(cacheKey, results);
+  console.log("💾 Age distribution saved to cache");
 
   return results;
 }

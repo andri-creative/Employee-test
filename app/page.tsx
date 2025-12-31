@@ -8,6 +8,7 @@ import { getAgeDistribution } from "@/lib/age";
 import { getEmployees } from "@/lib/employees";
 import { getPositions } from "@/lib/positions";
 import EmployeeTable from "@/components/table/EmployeeTable";
+import { Suspense } from "react";
 
 type SearchParams = {
   page?: string;
@@ -20,24 +21,20 @@ export default async function Home({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  // 🔑 WAJIB await
   const params = await searchParams;
 
   const page = Number(params.page) || 1;
   const position = params.position;
   const search = params.search;
 
-  const kpi = await getEmployeeKpis();
-
-  const [avgSalaryData, ageDistributionData] = await Promise.all([
-    getAverageSalaryByPosition(),
-    getAgeDistribution(),
-  ]);
-
-  const [employees, positions] = await Promise.all([
-    getEmployees({ page, pageSize: 10, position, search }),
-    getPositions(),
-  ]);
+  const [kpi, avgSalaryData, ageDistributionData, employees, positions] =
+    await Promise.all([
+      getEmployeeKpis(),
+      getAverageSalaryByPosition(),
+      getAgeDistribution(),
+      getEmployees({ page, pageSize: 10, position, search }),
+      getPositions(),
+    ]);
 
   return (
     <main>

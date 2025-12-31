@@ -1,4 +1,5 @@
 import prisma from "./prisma";
+import { getCache, setCache } from "./cache";
 
 export async function getEmployees({
   page,
@@ -11,6 +12,16 @@ export async function getEmployees({
   position?: string;
   search?: string;
 }) {
+  const cacheKey = `employees:${page}:${pageSize}:${position || "all"}:${
+    search || "none"
+  }`;
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    console.log("✅ Employees loaded from cache");
+    return cached;
+  }
+
   const where: any = {};
 
   if (position) {
@@ -24,24 +35,30 @@ export async function getEmployees({
     };
   }
 
-  // ✅ total data
-  const totalCount = await prisma.employee.count({ where });
+  const [totalCount, data] = await Promise.all([
+    prisma.employee.count({ where }),
+    prisma.employee.findMany({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
-  // ✅ total halaman
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const data = await prisma.employee.findMany({
-    where,
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: { name: "asc" },
-  });
-
-  return {
+  const result = {
     data,
     page,
     pageSize,
     totalPages,
     totalCount,
   };
+
+  if (!search) {
+    setCache(cacheKey, result);
+    console.log("💾 Employees saved to cache");
+  }
+
+  return result;
 }
